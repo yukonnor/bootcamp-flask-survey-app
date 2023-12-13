@@ -5,12 +5,12 @@
 <h2 class="survey-question">{{ question_text }}</h2>
 <form action="/answer" method="POST">
     <fieldset>
-        {% for choice in choices %}
-        <input type="radio" id="{{ question_id }}" name="answer" value="{{ choice }}" />
-        <label for="{{ question_id }}">{{ choice }}</label>
+        {% for index, choice in enumerate(choices) %}
+        <input type="radio" id="option-{{ index }}" name="answer" value="{{ choice }}" />
+        <label for="option-{{ index }}">{{ choice }}</label>
         {% endfor %}
-
     </fieldset>
+    <input type="hidden" id="hidden-input" name="question-id" value="{{ question_id }}">
     <input type="submit" value="Submit Answer">
 </form>
 {% endblock %}

@@ -30,3 +30,25 @@ def show_survey_question_page(question_id):
     question = survey.questions[question_id]
 
     return render_template("survey-question.html", survey_title=survey.title, question_id=question_id, question_text=question.question, choices=question.choices)
+
+@app.route("/answer")
+def show_survey_question_page(question_id):
+    """Show the survey question page based on question id provided"""
+
+    # get data from query string
+    answer = request.args["answer"]
+    last_question_id = int(request.args["question-id"])
+
+    # and answer to responses list
+    responses.append(answer)
+
+    # check to see what next question should be
+    survey = surveys.surveys["satisfaction"]
+    count_questions = len(survey.questions)
+    next_question_id = last_question_id + 1
+
+    # redirect to next question if there is one. else redirect to end survey page
+    if next_question_id < count_questions:
+        return redirect(f"/questions/{next_question_id}")
+    else: 
+        return redirect(f"/thanks")
