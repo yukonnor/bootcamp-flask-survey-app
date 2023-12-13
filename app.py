@@ -8,6 +8,9 @@ app.config['SECRET_KEY'] = "oh-so-secret"
 # app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 debug = DebugToolbarExtension(app)
 
+# Define current survey we're working with
+survey = surveys.surveys["satisfaction"]
+
 # List to store survey responses
 responses = []
 
@@ -17,8 +20,6 @@ def show_start_survey_page():
     """The root page should show the user the title of the survey they
        are taking along with a button that takes them to the survey."""
 
-    survey = surveys.surveys["satisfaction"]
-
     return render_template("root.html", survey_title=survey.title, survey_instructions=survey.instructions)
 
 
@@ -26,10 +27,15 @@ def show_start_survey_page():
 def show_survey_question_page(question_id): 
     """Show the survey question page based on question id provided"""
 
-    survey = surveys.surveys["satisfaction"]
-    question = survey.questions[question_id]
+    # double check which question should be answerd next based on the responses we have
+    next_question_id = len(responses)   
 
-    return render_template("survey-question.html", survey_title=survey.title, question_id=question_id, question_text=question.question, choices=question.choices)
+    # if user is on the correct question page, render the page. Else redirect them to correct page.
+    if question_id == next_question_id:
+        question = survey.questions[question_id]
+        return render_template("survey-question.html", survey_title=survey.title, question_id=question_id, question_text=question.question, choices=question.choices)
+    else:
+        return redirect(f"/questions/{next_question_id}")
 
 @app.route("/answer", methods=["POST"])
 def process_answer():
@@ -43,7 +49,6 @@ def process_answer():
     responses.append(answer)
 
     # check to see what next question should be
-    survey = surveys.surveys["satisfaction"]
     count_questions = len(survey.questions)
     next_question_id = last_question_id + 1
 
