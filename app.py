@@ -35,6 +35,7 @@ def show_survey_question_page(question_id):
         question = survey.questions[question_id]
         return render_template("survey-question.html", survey_title=survey.title, question_id=question_id, question_text=question.question, choices=question.choices)
     else:
+        flash('Please complete survey questions in order.', 'warning')
         return redirect(f"/questions/{next_question_id}")
 
 @app.route("/answer", methods=["POST"])

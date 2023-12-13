@@ -7,6 +7,17 @@
         <title>{% block title %}Page Title{% endblock %}</title>
     </head>
     <body>
-        <main>{% block content %}Specific Page Content{% endblock %}</main>
+        <main>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <section class="messages">
+            {% for category,msg in messages %}
+            <p class="{{category}}">{{msg}}</p>
+            {% endfor  %}
+            </section>
+            {% endif %}
+            {% endwith %}
+            {% block content %}Specific Page Content{% endblock %}
+        </main>
     </body>
 </html>
