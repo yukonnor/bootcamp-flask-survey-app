@@ -52,3 +52,8 @@ def process_answer():
         return redirect(f"/questions/{next_question_id}")
     else: 
         return redirect(f"/thanks")
+    
+@app.route("/thanks")
+def show_thanks_page():
+    """Show the user a thank you message after completing the survey """
+    return render_template("thanks.html")
