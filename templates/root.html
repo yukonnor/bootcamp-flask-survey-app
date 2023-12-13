@@ -1,8 +1,9 @@
 {% extends 'base.html' %} 
-{% block title %}Madlibs!{% endblock %} 
+{% block title %}Start Survey{% endblock %} 
 {% block content %}
-<h1>Madlibs</h1>
-<form id="start-survey-form" action="/questions/0">
-    <input type="submit" name="" id="start-btn" value="Start Survey" />
-</form>
+<h1>{{ survey_title }}</h1>
+<p>{{ survey_instructions }}</p>
+<a href="/questions/0">
+    <button type="button">Start Survey</button>
+  </a>
 {% endblock %}
