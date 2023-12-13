@@ -7,7 +7,8 @@
         <title>{% block title %}Page Title{% endblock %}</title>
     </head>
     <body>
-        <main>
+        <div>
+        
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
             <ul class="messages">
@@ -17,6 +18,8 @@
             </ul>
             {% endif %}
             {% endwith %}
+        </div>
+        <main>
             {% block content %}Specific Page Content{% endblock %}
         </main>
     </body>
