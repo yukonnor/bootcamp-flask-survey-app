@@ -13,10 +13,20 @@ responses = []
 
 
 @app.route("/")
-def show_template_select_form():
+def show_start_survey_page():
     """The root page should show the user the title of the survey they
        are taking along with a button that takes them to the survey."""
 
     survey = surveys.surveys["satisfaction"]
 
     return render_template("root.html", survey_title=survey.title, survey_instructions=survey.instructions)
+
+
+@app.route("/questions/<int:question_id>")
+def show_survey_question_page(question_id):
+    """Show the survey question page based on question id provided"""
+
+    survey = surveys.surveys["satisfaction"]
+    question = survey.questions[question_id]
+
+    return render_template("survey-question.html", survey_title=survey.title, question_id=question_id, question_text=question.question, choices=question.choices)
