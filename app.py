@@ -5,7 +5,7 @@ import surveys
 # Flask setup 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "oh-so-secret"
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+# app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 debug = DebugToolbarExtension(app)
 
 # List to store survey responses
@@ -31,13 +31,13 @@ def show_survey_question_page(question_id):
 
     return render_template("survey-question.html", survey_title=survey.title, question_id=question_id, question_text=question.question, choices=question.choices)
 
-@app.route("/answer")
-def process_answer(question_id):
+@app.route("/answer", methods=["POST"])
+def process_answer():
     """Show the survey question page based on question id provided"""
 
     # get data from query string
-    answer = request.args["answer"]
-    last_question_id = int(request.args["question-id"])
+    answer = request.form.get("answer")
+    last_question_id = int(request.form.get("question-id"))
 
     # and answer to responses list
     responses.append(answer)
