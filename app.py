@@ -23,7 +23,7 @@ def show_start_survey_page():
 
 
 @app.route("/questions/<int:question_id>")
-def show_survey_question_page(question_id):
+def show_survey_question_page(question_id): 
     """Show the survey question page based on question id provided"""
 
     survey = surveys.surveys["satisfaction"]
@@ -32,7 +32,7 @@ def show_survey_question_page(question_id):
     return render_template("survey-question.html", survey_title=survey.title, question_id=question_id, question_text=question.question, choices=question.choices)
 
 @app.route("/answer")
-def show_survey_question_page(question_id):
+def process_answer(question_id):
     """Show the survey question page based on question id provided"""
 
     # get data from query string
