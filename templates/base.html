@@ -3,18 +3,18 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" href="static/style.css" />
+        <link rel="stylesheet" href="/static/style.css" />
         <title>{% block title %}Page Title{% endblock %}</title>
     </head>
     <body>
         <main>
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-            <section class="messages">
+            <ul class="messages">
             {% for category,msg in messages %}
-            <p class="{{category}}">{{msg}}</p>
+            <li class="{{category}}">{{msg}}</li>
             {% endfor  %}
-            </section>
+            </ul>
             {% endif %}
             {% endwith %}
             {% block content %}Specific Page Content{% endblock %}
