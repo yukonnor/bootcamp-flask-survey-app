@@ -3,7 +3,7 @@
 {% block content %}
 <h1>{{ survey_title }}</h1>
 <p>{{ survey_instructions }}</p>
-<a href="/questions/0">
-    <button type="button" class="button">Start Survey</button>
-</a>
+<form action="/init-session" method="post">
+    <button type="submit" class="button">Start Survey</button>
+</form>
 {% endblock %}

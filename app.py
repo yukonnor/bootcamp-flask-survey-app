@@ -1,11 +1,11 @@
-from flask import Flask, request, render_template, redirect, flash, jsonify
+from flask import Flask, request, render_template, redirect, flash, session
 from flask_debugtoolbar import DebugToolbarExtension
 import surveys
 
 # Flask setup 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = "oh-so-secret"
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+app.config['SECRET_KEY'] = "TO_BE_A_SECRET_KEY"
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 debug = DebugToolbarExtension(app)
 
 # Define current survey we're working with
@@ -22,6 +22,16 @@ def show_start_survey_page():
 
     return render_template("root.html", survey_title=survey.title, survey_instructions=survey.instructions)
 
+
+@app.route("/init-session", methods=["POST"])
+def init_session():
+    """Initialize the user's session, which we'll use to store their survey progess and answers."""
+
+    # create an empty list where user's responses will be recorded
+    session['responses'] = []
+
+    # redirect to the beginning of the survey
+    return redirect(f"/questions/0")
 
 @app.route("/questions/<int:question_id>")
 def show_survey_question_page(question_id): 
