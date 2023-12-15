@@ -60,24 +60,34 @@ def init_session(slug):
     session['current_survey'] = slug
 
     # check if responses for that survey already exists. 
-    # TODO: Tried to store responses in a dict but session storage stopped working
-    #       Once working, retry: {'responses':'key':[responses]}
-    if session.get('responses'):
+    # if there are survey responses for any survey
+    if session.get('survey_responses'):
 
-        count_questions = len(survey.questions)
+        # if the user has a response list for current survey: 
+        if session['survey_responses'][slug]:
 
-        if len(session['responses']) == count_questions:
             # if we have answers for all questions, redirect to thanks page
-            flash('We already have all of your answers. If this is incorrect, please clear your cookies.', 'warning')
-            return redirect(f"/thanks")        
+            if len(session['survey_responses'][slug]) == count_questions:
+                flash('We already have all of your answers. If this is incorrect, please clear your cookies.', 'warning')
+                return redirect(f"/thanks")        
+            else:
+                # redirect user to question page, which has redirect logic to put them on correct question
+                return redirect(f"/questions/0")
+        
+        # else they need a response list for a new survey
         else:
-            # redirect user to question page, which has redirect logic to put them on correct question
+            session['survey_responses'][slug] = []
             return redirect(f"/questions/0")
+
     
+    # else the user doesn't have a session with survey responses
     else: 
-        # if user doesn't have a session with responses
-        # for each survey create an empty list where user's responses will be recorded
-        session['responses'] = []
+
+        # create an empty dict where user's survey responses will be recorded
+        session['survey_responses'] = {}
+
+        # create an empty list to store this suvey's reponses
+        session['survey_responses'][slug] = []
 
         # redirect to the first question of the survey
         return redirect(f"/questions/0")
@@ -91,13 +101,13 @@ def show_survey_question_page(question_id):
     survey_slug = session['current_survey']
     survey = all_surveys[survey_slug]
 
-    # double check which question should be answerd next based on the responses we have
-    responses = session['responses']
+    # check which question should be answerd next based on the responses we have
+    responses = session['survey_responses'][survey_slug]
     next_question_id = len(responses)   
 
     # debug:
     print("")
-    print(f"Viewing Question {question_id}. Session Responses: {session['responses']}")
+    print(f"Viewing Question {question_id}. Session Responses: {session['survey_responses']}")
     print("")
     
 
@@ -122,13 +132,13 @@ def process_answer():
     last_question_id = int(request.form.get("question-id"))
 
     # and answer to responses list in the session
-    survey_responses = session['responses']
-    survey_responses.append(answer)
-    session['responses'] = survey_responses
+    current_survey_responses = session['survey_responses'][survey_slug]
+    current_survey_responses.append(answer)
+    session['survey_responses'][survey_slug] = current_survey_responses
     
     # debug:
     print("")
-    print(f"Setting Answer in session. Session Responses: {session['responses']}")
+    print(f"Setting Answer in session. Session Responses: {session['survey_responses']}")
     print("")
 
     # check to see what next question should be
@@ -155,7 +165,7 @@ def show_error():
 
     # debug:
     print("")
-    print(f"On raise page. Session Responses: {session['responses']}")
+    print(f"On raise page. Session Responses: {session['survey_responses']}")
     print("")
 
     raise
