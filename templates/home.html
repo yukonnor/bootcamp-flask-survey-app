@@ -5,7 +5,7 @@
 <p>We want your data. Please select from one of the available surveys below.</p>
 <ul>
 {% for survey_slug, survey_obj in all_surveys.items() %}
-    <li><a href="/inti-session-survey/{{ survey_slug }}">{{ survey_obj.title }}</a></li>
+    <li><a href="/start-survey/{{ survey_slug }}">{{ survey_obj.title }}</a></li>
 {% endfor %}
 </ul>
 {% endblock %}
