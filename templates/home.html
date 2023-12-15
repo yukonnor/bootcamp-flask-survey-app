@@ -1,0 +1,11 @@
+{% extends 'base.html' %} 
+{% block title %}Survey Scoop{% endblock %} 
+{% block content %}
+<h1>Welcome to Survey Scoop</h1>
+<p>We want your data. Please select from one of the available surveys below.</p>
+<ul>
+{% for survey_key, survey_obj in all_surveys.items() %}
+    <li><a href="/start-survey/{{ survey_key }}">{{ survey_obj.title }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

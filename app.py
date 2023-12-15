@@ -8,8 +8,11 @@ app.config['SECRET_KEY'] = "TO_BE_A_SECRET_KEY"
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 debug = DebugToolbarExtension(app)
 
+# Define available surveys
+all_surveys = surveys.surveys
+
 # Define current survey we're working with
-survey = surveys.surveys["satisfaction"]
+# survey = surveys.surveys["satisfaction"]
 
 # Make the session permanent and set the lifetime to 1 day (in seconds)
 app.config['SESSION_PERMANENT'] = True
@@ -17,19 +20,37 @@ app.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 1 day in seconds
 
 
 @app.route("/")
-def show_start_survey_page():
-    """The root page should show the user the title of the survey they
-       are taking along with a button that takes them to the survey."""
+def show_home_page():
+    """The root page should show the user a list of surveys they can take"""
 
-    return render_template("root.html", survey_title=survey.title, survey_instructions=survey.instructions)
+    # raise
+
+    # Q: Should I instead only pass in the data that is used on this page? 
+    #    survey title and slug. If so, how to associate the two? 
+    return render_template("home.html", all_surveys=all_surveys)
+
+@app.route("/start-survey/<slug>")
+def show_start_survey_page(slug):
+    """The start page should show the user the title of the survey they
+       are taking along with a button that takes them to the survey."""
+    
+    # Get survey title and instructions based on the slug. 
+    survey = all_surveys[slug]
+
+    return render_template("start-survey.html", survey_title=survey.title, survey_instructions=survey.instructions)
 
 
 @app.route("/init-session", methods=["POST"])
 def init_session():
     """This function:
-       - Checks to see if user session has provided responses 
+       - Sets which survey is actively being taken
+       - Checks to see if user session has provided responses for that survey
        - If so, it directs them to where they should be
-       - If not, it initializes the user's session, which we'll use to store their survey progess and answers."""
+       - If not, it initializes the user's response list for the sruvey, which we'll use to store their survey progess and answers."""
+
+    # TODO: store in session which surveys are available
+    # TODO: check to see if user is actively taking survey
+    # TODO: During init, set 'current_survey' key
 
     # check if session already exists. 
     if session.get('responses'):
