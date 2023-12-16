@@ -12,6 +12,9 @@
         </div>
         {% endfor %}
     </fieldset>
+    {% if allow_text %}
+    <input type="comment" id="comment" name="comment" placeholder="Care to elaboarate?">
+    {% endif %}
     <input type="hidden" id="hidden-input" name="question-id" value="{{ question_id }}">
     <input class="button" type="submit" value="Submit Answer">
 </form>

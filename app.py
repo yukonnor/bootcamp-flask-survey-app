@@ -50,6 +50,11 @@ def init_session(slug):
        - Checks to see if user session has provided responses for that survey
        - If so, it directs them to where they should be
        - If not, it initializes the user's response list for the sruvey, which we'll use to store their survey progess and answers.
+
+    The session dictionary has the following structure:
+       - {'current_survey': 'survey_slug',
+          'survey_responses': {'survey_slug_1': {'answers': [], 'comments': []}}
+          }
     """
 
     # get which survey the user is taking
@@ -67,7 +72,7 @@ def init_session(slug):
         if session['survey_responses'].get(slug):
 
             # if we have answers for all questions, redirect to thanks page
-            if len(session['survey_responses'][slug]) == count_questions:
+            if len(session['survey_responses'][slug]['answers']) == count_questions:
                 flash('We already have all of your answers. If this is incorrect, please clear your cookies.', 'warning')
                 return redirect(f"/thanks")        
             else:
@@ -76,7 +81,7 @@ def init_session(slug):
         
         # else they need a response list for a new survey
         else:
-            session['survey_responses'][slug] = []
+            session['survey_responses'][slug] = {'answers': [], 'comments': []}
             return redirect(f"/questions/0")
 
     
@@ -87,7 +92,7 @@ def init_session(slug):
         session['survey_responses'] = {}
 
         # create an empty list to store this suvey's reponses
-        session['survey_responses'][slug] = []
+        session['survey_responses'][slug] = {'answers': [], 'comments': []}
 
         # redirect to the first question of the survey
         return redirect(f"/questions/0")
@@ -109,7 +114,7 @@ def show_survey_question_page(question_id):
     survey = all_surveys[survey_slug]
 
     # check which question should be answerd next based on the responses we have
-    responses = session['survey_responses'][survey_slug]
+    responses = session['survey_responses'][survey_slug]['answers']
     next_question_id = len(responses)   
 
     # debug:
@@ -121,7 +126,12 @@ def show_survey_question_page(question_id):
     # if user is on the correct question page, render the page. Else redirect them to correct page.
     if question_id == next_question_id:
         question = survey.questions[question_id]
-        return render_template("survey-question.html", survey_title=survey.title, question_id=question_id, question_text=question.question, choices=question.choices)
+        return render_template("survey-question.html", 
+                               survey_title=survey.title,
+                               question_id=question_id, 
+                               question_text=question.question, 
+                               choices=question.choices,
+                               allow_text=question.allow_text)
     else:
         flash("Let's continue where you left off!", 'warning')
         return redirect(f"/questions/{next_question_id}")
@@ -138,12 +148,18 @@ def process_answer():
 
     # get data from query string
     answer = request.form.get("answer")
+    comment = request.form.get("comment")
     last_question_id = int(request.form.get("question-id"))
 
     # and answer to responses list in the session
-    current_survey_responses = session['survey_responses'][survey_slug]
+    current_survey_responses = session['survey_responses'][survey_slug]['answers']
+    current_survey_comments = session['survey_responses'][survey_slug]['comments']
+    
     current_survey_responses.append(answer)
-    session['survey_responses'][survey_slug] = current_survey_responses
+    current_survey_comments.append(comment)
+
+    session['survey_responses'][survey_slug]['answers'] = current_survey_responses
+    session['survey_responses'][survey_slug]['comments'] = current_survey_comments
     
     # debug:
     print("")
@@ -170,9 +186,13 @@ def show_thanks_page():
     survey_slug = session['current_survey']
     survey = all_surveys[survey_slug]
     questions = survey.questions
-    answers = session['survey_responses'][survey_slug]
+    answers = session['survey_responses'][survey_slug]['amswers']
+    comments = session['survey_responses'][survey_slug]['comments']
 
-    return render_template("thanks.html", questions=questions, answers=answers)
+    return render_template("thanks.html", 
+                           questions=questions, 
+                           answers=answers,
+                           comments=comments)
 
 @app.route("/raise")
 def show_error():

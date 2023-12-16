@@ -7,7 +7,7 @@
 <p>Your responses:</p>
 <ol>
 {% for question in questions %}
-    <li><b>{{ question.question }}</b> {{ answers[loop.index0] }}</li>
+    <li><b>{{ question.question }}</b> {{ answers[loop.index0] }} {% if comments[loop.index0] %} | Comment: {{ comments[loop.index0] }}{% endif %}</li>
 {% endfor %}
 </ol>
 
