@@ -166,7 +166,13 @@ def process_answer():
 def show_thanks_page():
     """Show the user a thank you message after completing the survey """
 
-    return render_template("thanks.html")
+    # get which survey the user just finished
+    survey_slug = session['current_survey']
+    survey = all_surveys[survey_slug]
+    questions = survey.questions
+    answers = session['survey_responses'][survey_slug]
+
+    return render_template("thanks.html", questions=questions, answers=answers)
 
 @app.route("/raise")
 def show_error():
