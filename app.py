@@ -1,23 +1,23 @@
 from flask import Flask, request, render_template, redirect, flash, session
+from flask_session import Session
 from flask_debugtoolbar import DebugToolbarExtension
+import os
 import surveys
 
 # Flask setup 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = "TO_BE_A_SECRET_KEY"
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SECRET_KEY'] = os.urandom(24)
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 debug = DebugToolbarExtension(app)
-
-# Define available surveys
-all_surveys = surveys.surveys
-
-# Define current survey we're working with
-# survey = surveys.surveys["satisfaction"]
+Session(app)
 
 # Make the session permanent and set the lifetime to 1 day (in seconds)
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 1 day in seconds
 
+# Define available surveys
+all_surveys = surveys.surveys
 
 @app.route("/")
 def show_home_page():
@@ -42,7 +42,6 @@ def show_start_survey_page(slug):
                            survey_instructions=survey.instructions, 
                            survey_slug=slug)
 
-
 @app.route("/init-session/<slug>", methods=["POST"])
 def init_session(slug):
     """
@@ -55,6 +54,7 @@ def init_session(slug):
 
     # get which survey the user is taking
     survey = all_surveys[slug]
+    count_questions = len(survey.questions)
 
     # set which survey the user is currently taking here
     session['current_survey'] = slug
@@ -64,7 +64,7 @@ def init_session(slug):
     if session.get('survey_responses'):
 
         # if the user has a response list for current survey: 
-        if session['survey_responses'][slug]:
+        if session['survey_responses'].get(slug):
 
             # if we have answers for all questions, redirect to thanks page
             if len(session['survey_responses'][slug]) == count_questions:
@@ -97,6 +97,13 @@ def init_session(slug):
 def show_survey_question_page(question_id): 
     """Show the survey question page based on question id provided"""
 
+    session_id = session.sid
+
+    # debug:
+    print("")
+    print(f"Start of Questions view. Session ID: {session_id} | Session Responses: {session['survey_responses']}")
+    print("")
+
     # get which survey the user is working on
     survey_slug = session['current_survey']
     survey = all_surveys[survey_slug]
@@ -123,6 +130,8 @@ def show_survey_question_page(question_id):
 def process_answer():
     """Show the survey question page based on question id provided"""
 
+    session_id = session.sid
+
     # get which survey the user is working on
     survey_slug = session['current_survey']
     survey = all_surveys[survey_slug]
@@ -138,7 +147,7 @@ def process_answer():
     
     # debug:
     print("")
-    print(f"Setting Answer in session. Session Responses: {session['survey_responses']}")
+    print(f"Setting Answer in session. Session ID: {session_id} | Session Responses: {session['survey_responses']}")
     print("")
 
     # check to see what next question should be
@@ -165,7 +174,7 @@ def show_error():
 
     # debug:
     print("")
-    print(f"On raise page. Session Responses: {session['survey_responses']}")
+    print(f"On raise page. Session ID: {session.sid} | Session Responses: {session['survey_responses']}")
     print("")
 
     raise
