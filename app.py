@@ -186,7 +186,7 @@ def show_thanks_page():
     survey_slug = session['current_survey']
     survey = all_surveys[survey_slug]
     questions = survey.questions
-    answers = session['survey_responses'][survey_slug]['amswers']
+    answers = session['survey_responses'][survey_slug]['answers']
     comments = session['survey_responses'][survey_slug]['comments']
 
     return render_template("thanks.html", 
