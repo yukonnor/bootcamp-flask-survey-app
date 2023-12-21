@@ -4,8 +4,8 @@
 <h1>Welcome to Survey Scoop</h1>
 <p>We want your data. Please select from one of the available surveys below.</p>
 <ul>
-{% for survey_slug, survey_obj in all_surveys.items() %}
-    <li><a href="/start-survey/{{ survey_slug }}">{{ survey_obj.title }}</a></li>
+{% for survey_slug, survey_title in survey_titles.items() %}
+    <li><a href="/start-survey/{{ survey_slug }}">{{ survey_title }}</a></li>
 {% endfor %}
 </ul>
 {% endblock %}

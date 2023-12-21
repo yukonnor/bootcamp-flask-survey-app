@@ -13,6 +13,8 @@ debug = DebugToolbarExtension(app)
 Session(app)
 
 # Make the session permanent and set the lifetime to 1 day (in seconds)
+# Q: When I did this, the session started to change when viewing certain pages. 
+#    Had to import new module to support filesystem sessions. 
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 1 day in seconds
 
@@ -23,11 +25,13 @@ all_surveys = surveys.surveys
 def show_home_page():
     """The root page should show the user a list of surveys they can take"""
 
-    # raise
+    # Q: Is this OK? I'm attempting to just pass the data I need on the page rather than all survey data
+    survey_titles = {}
 
-    # Q: Should I instead only pass in the data that is used on this page? 
-    #    survey title and slug. If so, how to associate the two? 
-    return render_template("home.html", all_surveys=all_surveys)
+    for survey_slug, survey_obj in all_surveys.items():
+        survey_titles[survey_slug] = survey_obj.title
+
+    return render_template("home.html", survey_titles=survey_titles)
 
 @app.route("/start-survey/<slug>")
 def show_start_survey_page(slug):
