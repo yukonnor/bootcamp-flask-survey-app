@@ -13,8 +13,6 @@ debug = DebugToolbarExtension(app)
 Session(app)
 
 # Make the session permanent and set the lifetime to 1 day (in seconds)
-# Q: When I did this, the session started to change when viewing certain pages. 
-#    Had to import new module to support filesystem sessions. 
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 1 day in seconds
 
@@ -25,7 +23,7 @@ all_surveys = surveys.surveys
 def show_home_page():
     """The root page should show the user a list of surveys they can take"""
 
-    # Q: Is this OK? I'm attempting to just pass the data I need on the page rather than all survey data
+    # TODO: Move this to surveys model. Add an attribute / method for this.
     survey_titles = {}
 
     for survey_slug, survey_obj in all_surveys.items():
@@ -69,10 +67,8 @@ def init_session(slug):
     session['current_survey'] = slug
 
     # check if responses for that survey already exists. 
-    # if there are survey responses for any survey
     if session.get('survey_responses'):
 
-        # if the user has a response list for current survey: 
         if session['survey_responses'].get(slug):
 
             # if we have answers for all questions, redirect to thanks page
@@ -89,13 +85,10 @@ def init_session(slug):
             return redirect(f"/questions/0")
 
     
-    # else the user doesn't have a session with survey responses
+    # else the user doesn't have a session with survey responses. init session properties.
     else: 
 
-        # create an empty dict where user's survey responses will be recorded
         session['survey_responses'] = {}
-
-        # create an empty list to store this suvey's reponses
         session['survey_responses'][slug] = {'answers': [], 'comments': []}
 
         # redirect to the first question of the survey
@@ -108,24 +101,13 @@ def show_survey_question_page(question_id):
 
     session_id = session.sid
 
-    # debug:
-    print("")
-    print(f"Start of Questions view. Session ID: {session_id} | Session Responses: {session['survey_responses']}")
-    print("")
-
     # get which survey the user is working on
     survey_slug = session['current_survey']
     survey = all_surveys[survey_slug]
 
     # check which question should be answerd next based on the responses we have
     responses = session['survey_responses'][survey_slug]['answers']
-    next_question_id = len(responses)   
-
-    # debug:
-    print("")
-    print(f"Viewing Question {question_id}. Session Responses: {session['survey_responses']}")
-    print("")
-    
+    next_question_id = len(responses)       
 
     # if user is on the correct question page, render the page. Else redirect them to correct page.
     if question_id == next_question_id:
@@ -164,11 +146,6 @@ def process_answer():
 
     session['survey_responses'][survey_slug]['answers'] = current_survey_responses
     session['survey_responses'][survey_slug]['comments'] = current_survey_comments
-    
-    # debug:
-    print("")
-    print(f"Setting Answer in session. Session ID: {session_id} | Session Responses: {session['survey_responses']}")
-    print("")
 
     # check to see what next question should be
     count_questions = len(survey.questions)
@@ -177,7 +154,6 @@ def process_answer():
     # redirect to next question if there is one. else redirect to end survey page
     if next_question_id < count_questions:
         return redirect(f"/questions/{next_question_id}")
-        # return redirect(f"/raise")
     else: 
         flash('Thank you!', 'success')
         return redirect(f"/thanks")
@@ -197,15 +173,3 @@ def show_thanks_page():
                            questions=questions, 
                            answers=answers,
                            comments=comments)
-
-@app.route("/raise")
-def show_error():
-    """Show the user a thank you message after completing the survey """
-
-    # debug:
-    print("")
-    print(f"On raise page. Session ID: {session.sid} | Session Responses: {session['survey_responses']}")
-    print("")
-
-    raise
-    return render_template("thanks.html")
